@@ -4,6 +4,9 @@ module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'dummy',
     environment: environment,
+    coffeeOptions: {
+      blueprints: false
+    },
     baseURL: '/',
     locationType: 'auto',
     EmberENV: {

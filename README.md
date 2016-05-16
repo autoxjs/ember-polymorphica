@@ -1,6 +1,49 @@
 # Ember-polymorphica
 
-This README outlines the details of collaborating on this Ember addon.
+Ember mixin and registration service for creating polymorphic routes.
+
+## Example
+Usage with special DSL in your `router.coffee`
+
+```coffeescript
+`import SomeRouteMixin from '../mixins/some-route-mixin'`
+`import SomeControllerMixin from '../mixins/some-controller-mixin'`
+
+Router.map ->
+  {namespace, collection, children, model, child, form, view} = DSL.import(@).with
+    namespace:
+      routeMixins: ["namespace-feature"]
+      controllerMixins: ["namespace-controller"]
+    collection:
+      routeMixins: ["collection-feature"]
+    model:
+      routeMixins: ["model-feature"]
+    form:
+      routeMixins: ["terminal-feature"]
+
+  namespace "dashboard", ->
+    collection "projects", ->
+      form "new"
+      model "project", ->
+        form "edit"
+        children "histories"
+
+      model "art-project", as: "project", ->
+        form "edit"
+
+    model "folder", ->
+      children "image-files", as: "file"
+```
+Now, the dashboard route and all its children will have the SomeRouteMixin mixed in.
+
+## Dependencies
+the following packages should be installed prior to use:
+
+```sh
+ember-router-dsl
+ember-lodash
+ember-inflector
+```
 
 ## Installation
 
