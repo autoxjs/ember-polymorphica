@@ -8,25 +8,32 @@ assertPresence = (reference, obj) ->
   return obj if isPresent obj
   throw new Error "Expected to find a mixin named '#{reference}', instead I got this horseshit '#{obj}'"
 
-toMixins = (app, type, opts) ->
+toMixins = (instance, type, opts) ->
   getWithDefault(opts, "#{type}Mixins", A [])
   .map (mixin) ->
     assertPresence mixin, switch
       when typeOf(mixin) is "string" and mixin.match(MixinRegex)
-        app.resolveRegistration mixin
+        instance.resolveRegistration mixin
       when typeOf(mixin) is "string"
-        app.resolveRegistration "mixin:#{mixin}"
+        instance.resolveRegistration "mixin:#{mixin}"
       else mixin
 
 normalizeName = (type, name) ->
   [type, name.split(".").join("/")].join ":"
 
-registerDefault = (app, type, name, opts) ->
-  mixins = toMixins(app, type, opts)
+registerDefault = (instance, type, name, opts) ->
+  Factory = Ember[capitalize type]
+  registerClass Factory, instance, type, name, opts
+
+registerClass = (Factory, instance, type, name, opts) ->
+  mixins = toMixins(instance, type, opts)
   return if isBlank mixins
-  app.register normalizeName(type, name), Ember[capitalize type].extend mixins..., {}
+  fullname = normalizeName(type, name)
+  instance.register fullname, Factory.extend mixins..., {}
+  instance.lookup(fullname)["#{type}Name"] = name
+
 
 missingDefinition = (application, type, name) ->
   not application.hasRegistration normalizeName(type, name)
 
-`export {missingDefinition, registerDefault, toMixins, normalizeName}`
+`export {missingDefinition, registerDefault, registerClass, toMixins, normalizeName}`

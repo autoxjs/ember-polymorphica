@@ -1,17 +1,14 @@
-`import { describe, it, beforeEach, afterEach, before, after } from 'mocha'`
+`import { describe, it, before, after } from 'mocha'`
 `import { expect } from 'chai'`
 `import startApp from '../helpers/start-app'`
 `import destroyApp from '../helpers/destroy-app'`
-`import getOwner from 'ember-getowner-polyfill'`
 
 describe 'Acceptance: PolymorphicaRegistration', ->
   application = null
-  owner = null
   container = null
   before (done) -> 
     application = startApp()
     container = application.__container__
-    owner = getOwner application
     visit "/"
     andThen -> done()
 
@@ -30,20 +27,35 @@ describe 'Acceptance: PolymorphicaRegistration', ->
     expect container.lookup "route:dashboard"
     .to.be.ok
 
-  it 'route:dashboard', ->
-    route = container.lookup "route:dashboard"
-    expect route.get "paginate"
-    .to.not.be.ok
-    expect route.get "xfire"
-    .to.equal "namespace"
+  describe 'route:dashboard', ->
+    before ->
+      @route = container.lookup "route:dashboard"
 
-  it 'route:dashboard/projects', ->
-    route = container.lookup "route:dashboard/projects"
-    expect route.get "paginate"
-    .to.equal "collect"
+    it 'should have a routeName', ->
+      expect(@route).to.have.property "routeName", "dashboard"
+
+    it 'should not inherit the wrong mixin', ->
+      expect(@route).to.not.have.property "paginate"
+
+    it 'should have inherited the right mixin', ->
+      expect(@route).to.have.property 'xfire', 'namespace'
   
-  it 'route:dashboard/projects/search', ->
-    route = container.lookup "route:dashboard/projects/search"
-    expect route.get "cardboard"
-    .to.equal "view"
-    
+  describe 'route:dashboard/projects', ->
+    before ->
+      @route = container.lookup 'route:dashboard/projects'
+
+    it 'should have a routeName', ->
+      expect(@route).to.have.property "routeName", "dashboard.projects"
+
+    it 'should have inherited the right mixin', ->
+      expect(@route).to.have.property "paginate", "collect"
+  
+  describe 'route:dashboard/projects/search', ->
+    before ->
+      @route = container.lookup "route:dashboard/projects/search"
+
+    it 'should have a routeName', ->
+      expect(@route).to.have.property "routeName", "dashboard.projects.search"
+
+    it 'should inherit the right mixin', ->
+      expect(@route).to.have.property "cardboard", "view"
