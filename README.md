@@ -1,4 +1,5 @@
 # Ember-polymorphica
+[![Build Status](https://travis-ci.org/autoxjs/ember-polymorphica.svg?branch=master)](https://travis-ci.org/autoxjs/ember-polymorphica)
 
 Ember mixin and registration service for creating polymorphic routes.
 
